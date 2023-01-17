@@ -108,11 +108,7 @@ def scrapper():
                     class_="ij-OfferCardContent-description-list-item-truncate",
                 )
                 li_city = container_4[0].text if container_4 != [] else "Not found data"
-
                 cities.append(li_city)
-
-                # s = lines.find_all("span")
-                # print(s[4])
 
                 # Fecha de creación de Vacante
                 container_5 = lines.find_all(
@@ -124,13 +120,13 @@ def scrapper():
                 )
                 vacancy_dates.append(li_vacancy)
 
+                # Tipo de contrato y horario
                 container_6 = lines.find_all(
                     ["li"],
                     class_=[
                         "ij-OfferCardContent-description-list-item ij-OfferCardContent-description-list-item--hideOnMobile",
                     ],
                 )
-
                 # Tipo de contrato
                 li_3 = container_6[0].text if container_6 != [] else "Not found data"
                 contract_types.append(li_3)
@@ -148,21 +144,6 @@ def scrapper():
                     container_7[0].text if container_7 != [] else "Not found data"
                 )
                 salaries.append(li_salary)
-
-            # print(salaries)
-            # # Tipo de trabajo
-            # container_7 = lines.find_all(
-            #     "li",
-            #     class_="ij-OfferCardContent-description-list-item",
-            # )
-            # li_work_types = (
-            #     container_7[0].text if container_7 != [] else "Not found data"
-            # )
-            # work_types.append(li_work_types)
-            #     li_1 = container_2[3].text
-            #     work_types.append(li_1)
-
-            # print(work_types)
 
     # Creating the CSV file
     print("Creating CSV file")
