@@ -3,3 +3,6 @@ venv/
 data/*
 infojobs*
 items*
+scrap_info/*
+datadome_*
+__pycache__
