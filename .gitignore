@@ -3,4 +3,4 @@ venv/
 # *.csv
 datadome_*
 __pycache__
-# scrap_files/*.txt
+csv_files/*.csv

@@ -1,13 +1,14 @@
 import re
+from datetime import datetime
 
 import pandas as pd
 from bs4 import BeautifulSoup
 
 
-def infojobs_scrapper(file_name: str):
+def infojobs_scrapper(file_name: str, keyword: str):
     """
     Infojobs scrap with Beautifulsoup.
-    Pass the file name to generate the CSV file.
+    Pass the file name and keyword to generate the CSV file.
     """
 
     company_names = []
@@ -127,8 +128,9 @@ def infojobs_scrapper(file_name: str):
         "Horario de trabajo",
         "Salario",
     ]
+    date = datetime.now().strftime("%Y-%m-%d")
     df.to_csv(
-        "csv_files/infojobs-demo-10.csv",
+        f"csv_files/infojobs_{keyword}_{date}.csv",
         encoding="utf-8",
         index=False,
         columns=cols,
