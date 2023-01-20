@@ -22,7 +22,7 @@ def infojobs_scrapper(file_name: str):
     cities = []
 
     print("Opening file to get all the response...")
-    with open(f"scrap_info/{file_name}", "r") as fh:
+    with open(f"scrap_files/{file_name}", "r") as fh:
         html_soup = BeautifulSoup(fh, "lxml")
 
     container = html_soup.find_all(
@@ -128,7 +128,7 @@ def infojobs_scrapper(file_name: str):
         "Salario",
     ]
     df.to_csv(
-        "data/infojobs-demo-10.csv",
+        "csv_files/infojobs-demo-10.csv",
         encoding="utf-8",
         index=False,
         columns=cols,

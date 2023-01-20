@@ -50,7 +50,7 @@ def selenium_scrapper():
             last_scroll_pos = current_scroll_pos
 
         print("Generating file with response...")
-        with open("scrap_info/infojobs_html_selenium.txt", "w") as fp:
+        with open("scrap_files/infojobs_html_selenium.txt", "w") as fp:
             # To write data to new file
             fp.write(chrome.page_source)
 

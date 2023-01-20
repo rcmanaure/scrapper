@@ -1,8 +1,6 @@
 venv/
 .vscode/
-data/*
-infojobs*
-items*
-scrap_info/*
+# *.csv
 datadome_*
 __pycache__
+# scrap_files/*.txt
