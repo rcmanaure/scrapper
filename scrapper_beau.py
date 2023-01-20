@@ -1,135 +1,139 @@
 import re
-from time import sleep
 
 import pandas as pd
-import requests
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
-
-ua = UserAgent(browsers=["chrome", "firefox"])
-test = ua.random
-
-my_headers = {
-    "User-Agent": ua.random,
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-    "ACCEPT-ENCODING": "gzip, deflate, br",
-    "ACCEPT-LANGUAGE": "en-US,en;q=0.9,es;q=0.8",
-}
-# my_headers = {
-#     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-#     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-# }
-session = requests.Session()
-pages = 1
-soup_list = []
-with requests.Session() as s:
-
-    while pages < 3:
-        sleep(10)
-        url = f"https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword=Programador%2Fa%20web&normalizedJobTitleIds=2512_866c7813-2c03-47d7-9bdc-192cfbace57c&provinceIds=&cityIds=&teleworkingIds=&categoryIds=&workdayIds=&educationIds=&segmentId=&contractTypeIds=&page={pages}&sortBy=PUBLICATION_DATE&onlyForeignCountry=false&countryIds=&sinceDate=ANY&subcategoryIds="
-
-        response = s.get(url, headers=my_headers)
-
-        soup = BeautifulSoup(response.text, "html.parser")
-        soup_list.append(soup)
-        pages += 1
-
-print(soup_list[0])
-# with open("infojobs_html.json", "wb") as fp:
-#     # To write data to new file
-#     json.dump(soup_list, fp)
 
 
-# with open("infojobs_html.txt", "r") as fh:
-#     # print(fh.read())
-#     html_soup = BeautifulSoup(fh, "html.parser")
+def infojobs_scrapper(file_name: str):
+    """
+    Infojobs scrap with Beautifulsoup.
+    Pass the file name to generate the CSV file.
+    """
 
+    company_names = []
+    company_urls = []
+    company_roles = []
+    roles_urls = []
+    work_types = []
+    vacancy_dates = []
+    contract_types = []
+    work_schedules = []
+    salaries = []
+    cities = []
 
-company_names = []
-company_urls = []
-company_roles = []
-roles_url = []
+    print("Opening file to get all the response...")
+    with open(f"scrap_info/{file_name}", "r") as fh:
+        html_soup = BeautifulSoup(fh, "lxml")
 
-for i in soup_list:
-    # test = BeautifulSoup(i, "lxml")
-    container = i.find_all(
-        ["h2", "h3", "li"],
-        class_=[
-            "ij-OfferCardContent-description-title",
-            "ij-OfferCardContent-description-subtitle",
-            "ij-OfferCardContent-description-list-item",
-            # lambda x: x != "hidden",
-        ],
+    container = html_soup.find_all(
+        ["div"],
+        class_=["ij-OfferCardContent-description"],
     )
 
+    print("Obtain all necessary data from the file...")
     for lines in container:
-        if lines.name == "h2":
-            roles = lines.text
-            url = lines.find_all("a", href=re.compile("//www.infojobs.net/"))[0].get(
+        if lines.name == "div":
+            # Tecnologia o Roles
+            container_2 = lines.find_all(
+                ["h2"], class_="ij-OfferCardContent-description-title"
+            )
+            h2_roles = container_2[0].text if container_2 != [] else "No data"
+            company_roles.append(h2_roles)
+            # URL Vacante
+            url_h2 = lines.find_all("a", href=re.compile("//www.infojobs.net/"))[0].get(
                 "href"
             )
-            company_roles.append(roles)
-            roles_url.append(url)
-            # print("keyword: ", roles)
-            # print(
-            #     "Foundation url:",
-            #     lines.find_all("a", href=re.compile("//www.infojobs.net/"))[0].get("href"),
-            # )
-
-        if lines.name == "h3":
-            company = lines.text
-            url = lines.find_all(
+            format_url2 = f"https:{url_h2}"
+            roles_urls.append(format_url2 if url_h2 != [] else "No data")
+            # Nombre de empresa
+            container_3 = lines.find_all(
+                ["h3"], class_="ij-OfferCardContent-description-subtitle"
+            )
+            h3_company = container_3[0].text if container_3 != [] else "No data"
+            company_names.append(h3_company)
+            # URL Empresa (InfoJobs)
+            url_h3 = lines.find_all(
                 "a", class_="ij-OfferCardContent-description-subtitle-link"
             )[0].get("href")
-            company_names.append(company)
-            company_urls.append(url)
-# print("Company name:", company, "\n")
-# if lines.name == "li":
-#     company = lines.text
-#     print("Info:", company, "\n")
+            company_urls.append(url_h3 if url_h3 != [] else "No data")
+            # Ciudad
+            container_4 = lines.find_all(
+                "span",
+                class_="ij-OfferCardContent-description-list-item-truncate",
+            )
+            li_city = container_4[0].text if container_4 != [] else "No data"
+            cities.append(li_city)
+            # Fecha de creación de Vacante
+            container_5 = lines.find_all(
+                "span",
+                class_="ij-FormatterSincedate ij-FormatterSincedate--success ij-FormatterSincedate--xs",
+            )
+            li_vacancy = container_5[0].text if container_5 != [] else "No data"
+            vacancy_dates.append(li_vacancy)
+            # Tipo de contrato y horario
+            container_6 = lines.find_all(
+                ["li"],
+                class_=[
+                    "ij-OfferCardContent-description-list-item ij-OfferCardContent-description-list-item--hideOnMobile",
+                ],
+            )
+            # Tipo de contrato
+            li_3 = container_6[0].text if container_6 != [] else "No data"
+            contract_types.append(li_3)
+            # Horario de trabajo
+            li_6 = container_6[1].text if container_6 != [] else "No data"
+            work_schedules.append(li_6)
+            # Salario
+            container_7 = lines.find_all(
+                "span",
+                class_="ij-OfferCardContent-description-salary-info",
+            )
+            li_salary = (
+                container_7[0].text if container_7 != [] else "Salario no disponible"
+            )
+            salaries.append(li_salary)
+            # Tipo de trabajo
+            # container_8 = lines.find_all(
+            #     ["li"],
+            #     class_=[
+            #         "ij-OfferCardContent-description-list-item",
+            #     ],
+            # )
+
+    # Creating the CSV file
+    print("Creating CSV file")
+    df = pd.DataFrame(
+        {
+            "Nombre de empresa": company_names,
+            "Tecnologia": company_roles,
+            "Ciudad": cities,
+            "Fecha de creación de Vacante": vacancy_dates,
+            "URL Empresa": company_urls,
+            "URL Vacante": roles_urls,
+            "Tipo de contratacion": contract_types,
+            "Horario de trabajo": work_schedules,
+            "Salario": salaries,
+        }
+    )
+
+    cols = [
+        "Nombre de empresa",
+        "Tecnologia",
+        "Ciudad",
+        "Fecha de creación de Vacante",
+        "URL Empresa",
+        "URL Vacante",
+        "Tipo de contratacion",
+        "Horario de trabajo",
+        "Salario",
+    ]
+    df.to_csv(
+        "data/infojobs-demo-10.csv",
+        encoding="utf-8",
+        index=False,
+        columns=cols,
+    )
+    print("CSV file generated...")
 
 
-# container = html_soup.find_all(
-#     ["h2", "h3", "li"],
-#     class_=[
-#         "ij-OfferCardContent-description-title",
-#         "ij-OfferCardContent-description-subtitle",
-#         "ij-OfferCardContent-description-list-item",
-#         # lambda x: x != "hidden",
-#     ],
-# )
-
-# for lines in container:
-#     if lines.name == "h2":
-#         roles = lines.text
-#         url = lines.find_all("a", href=re.compile("//www.infojobs.net/"))[0].get("href")
-#         company_roles.append(roles)
-#         roles_url.append(url)
-#         # print("keyword: ", roles)
-#         # print(
-#         #     "Foundation url:",
-#         #     lines.find_all("a", href=re.compile("//www.infojobs.net/"))[0].get("href"),
-#         # )
-
-#     if lines.name == "h3":
-#         company = lines.text
-#         url = lines.find_all(
-#             "a", class_="ij-OfferCardContent-description-subtitle-link"
-#         )[0].get("href")
-#         company_names.append(company)
-#         company_urls.append(url)
-#         # print("Company name:", company, "\n")
-#     # if lines.name == "li":
-#     #     company = lines.text
-#     #     print("Info:", company, "\n")
-
-df = pd.DataFrame(
-    {
-        "Nombre de empresa": company_names,
-        "Tecnologia": company_roles,
-        "URL Empresa": company_urls,
-        "URL Vacante": roles_url,
-    }
-)
-cols = ["Nombre de empresa", "Tecnologia", "URL Empresa", "URL Vacante"]
-df.to_csv("data/infojobs-1.csv", encoding="utf-8", index=False, columns=cols)
+# scrapper()
