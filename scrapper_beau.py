@@ -2,9 +2,25 @@ import re
 from datetime import datetime
 
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 
 import utils.list_to_json as wr
+
+ua = UserAgent(
+    browsers=[
+        "chrome",
+        # "firefox",
+    ]
+)
+
+my_headers = {
+    "User-Agent": ua.random,
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+    "ACCEPT-ENCODING": "gzip, deflate, br",
+    "ACCEPT-LANGUAGE": "en-US,en;q=0.9,es;q=0.8",
+}
 
 
 def infojobs_scrapper(file_name: str = None, keyword: str = None):
@@ -25,7 +41,8 @@ def infojobs_scrapper(file_name: str = None, keyword: str = None):
     cities = []
 
     list_responses = wr.read_list(file_name)
-
+    list_responses2 = wr.read_list("subresponse")
+    # with requests.Session() as session:
     for response in list_responses:
         print("Opening file to get all the response...")
         html_soup = BeautifulSoup(response, "lxml")
@@ -138,6 +155,22 @@ def infojobs_scrapper(file_name: str = None, keyword: str = None):
                     work_type = "No data"
 
                 work_types.append(work_type)
+
+    for response2 in list_responses2:
+        # print("Opening file to get all the response2...")
+        html_soup2 = BeautifulSoup(response2, "lxml")
+
+        container_test = html_soup2.find_all(
+            ["ul"],
+            class_=[
+                "list-default list-inline-center-small-device base flow-items--baseline"
+            ],
+        )
+
+        for j in container_test:
+            container_a = j.find_all(["a"])
+            if container_a != []:
+                print(container_a[0].text)
 
     # Creating the CSV file
     print()
