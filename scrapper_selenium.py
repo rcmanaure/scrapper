@@ -1,12 +1,4 @@
 import argparse
-from time import sleep
-
-import selenium.webdriver.support.expected_conditions as EC
-import undetected_chromedriver as uc
-from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.remote.webdriver import By
-from selenium.webdriver.support.wait import WebDriverWait
 
 import scrapper_beau as sb
 import utils.list_to_json as wl

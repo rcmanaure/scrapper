@@ -13,8 +13,8 @@ chromedriver_autoinstaller.install()
 
 def selenium(url: str):
     options = uc.ChromeOptions()
-    # options.headless = True
-    # options.add_argument("--headless")
+    options.headless = True
+    options.add_argument("--headless")
 
     chrome = uc.Chrome(options=options)
     try:
