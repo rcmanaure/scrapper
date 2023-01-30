@@ -10,6 +10,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 import scrapper_beau as sb
 import utils.list_to_json as wl
+import utils.selenium_script as selenium_script
 
 # Setup args
 parser = argparse.ArgumentParser()
@@ -29,48 +30,20 @@ def selenium_scrapper():
     keyword = str(args.keyword) if args.keyword else "Programador"
     pages = 1
     list_response = []
-    # while pages < 3:
-    #     options = uc.ChromeOptions()
-    #     options.headless = True
-    #     options.add_argument("--headless")
+    while pages < 5:
 
-    #     chrome = uc.Chrome(options=options)
-    #     try:
-    #         # Go to the site
-    #         print("Get info from the site...")
-    #         chrome.get(
-    #             f"https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword={keyword}&normalizedJobTitleIds=&provinceIds=&cityIds=&teleworkingIds=&categoryIds=&workdayIds=&educationIds=&segmentId=&contractTypeIds=&page={pages}&sortBy=RELEVANCE&onlyForeignCountry=false&countryIds=&sinceDate=ANY&subcategoryIds="
-    #         )
-    #     except WebDriverException as e:
-    #         print("Error in the connection.")
-    #         raise e("Error in the connection.")
+        url = f"https://www.infojobs.net/jobsearch/search-results/list.xhtml?keyword={keyword}&normalizedJobTitleIds=&provinceIds=&cityIds=&teleworkingIds=&categoryIds=&workdayIds=&educationIds=&segmentId=&contractTypeIds=&page={pages}&sortBy=RELEVANCE&onlyForeignCountry=false&countryIds=&sinceDate=ANY&subcategoryIds="
 
-    #     try:
-    #         # Scroll Down to load the page dynamically
-    #         last_scroll_pos = 0
-    #         while True:
-    #             WebDriverWait(chrome, 30).until(
-    #                 EC.presence_of_element_located((By.CSS_SELECTOR, "body"))
-    #             ).send_keys(Keys.DOWN)
-    #             sleep(0.01)
-    #             current_scroll_pos = str(
-    #                 chrome.execute_script("return window.pageYOffset;"),
-    #             )
-    #             if current_scroll_pos == last_scroll_pos:
-    #                 print("scrolling is finished")
-    #                 break
-    #             last_scroll_pos = current_scroll_pos
-    #     except WebDriverException as e:
-    #         print("Error obtaining data from the site...")
-    #         raise e
+        # Go to the site
+        response = selenium_script.selenium(url)
 
-    # list_response.append(chrome.page_source)
-    # pages += 1
-
+        list_response.append(response.page_source)
+        pages += 1
+        response.close()
     try:
         print()
         print("Generating file with response...")
-        # wl.write_list(list_response, f"{file_name}")
+        wl.write_list(list_response, f"{file_name}")
         sb.infojobs_scrapper(f"{file_name}", keyword)
         print("Success")
     except Exception as e:

@@ -1,26 +1,12 @@
 import re
 from datetime import datetime
+from time import sleep
 
 import pandas as pd
-import requests
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
 
 import utils.list_to_json as wr
-
-ua = UserAgent(
-    browsers=[
-        "chrome",
-        # "firefox",
-    ]
-)
-
-my_headers = {
-    "User-Agent": ua.random,
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
-    "ACCEPT-ENCODING": "gzip, deflate, br",
-    "ACCEPT-LANGUAGE": "en-US,en;q=0.9,es;q=0.8",
-}
+import utils.selenium_script as selenium_script
 
 
 def infojobs_scrapper(file_name: str = None, keyword: str = None):
@@ -41,8 +27,9 @@ def infojobs_scrapper(file_name: str = None, keyword: str = None):
     cities = []
 
     list_responses = wr.read_list(file_name)
-    list_responses2 = wr.read_list("subresponse")
-    # with requests.Session() as session:
+    # list_responses2 = wr.read_list("python_links")
+    # list_selnium = []
+    # count = 0
     for response in list_responses:
         print("Opening file to get all the response...")
         html_soup = BeautifulSoup(response, "lxml")
@@ -68,7 +55,11 @@ def infojobs_scrapper(file_name: str = None, keyword: str = None):
                 ].get("href")
                 format_url2 = f"https:{url_h2}"
                 roles_urls.append(format_url2 if url_h2 != [] else "No data")
+                # sleep(30)
+                # response = selenium_script.selenium(format_url2)
+                # list_selnium.append(response.page_source)
 
+                # count += 1
                 # Nombre de empresa
                 container_3 = lines.find_all(
                     ["h3"], class_="ij-OfferCardContent-description-subtitle"
@@ -156,21 +147,25 @@ def infojobs_scrapper(file_name: str = None, keyword: str = None):
 
                 work_types.append(work_type)
 
-    for response2 in list_responses2:
-        # print("Opening file to get all the response2...")
-        html_soup2 = BeautifulSoup(response2, "lxml")
+    # wr.write_list(roles_urls, "python_links")
+    # url = "//www.infojobs.net/zaragoza/programador-producto-bi-python-sql-100-remoto/of-i67926a11fe40109e34a7c10a0eddb7?applicationOrigin=search-new&page=1&sortBy=RELEVANCE"
+    # response = selenium_script.selenium(url)
+    # html_soup2 = BeautifulSoup(response.page_source, "lxml")
+    # list_selnium.append(html_soup2)
+    # wr.write_list(list_selnium, "selenium_responses_python")
+    # count = 0
+    # for response2 in list_responses2:
+    #     # print("Opening file to get all the response2...")
+    #     # html_soup2 = BeautifulSoup(response2, "lxml")
+    #     response = selenium_script.selenium(response2)
 
-        container_test = html_soup2.find_all(
-            ["ul"],
-            class_=[
-                "list-default list-inline-center-small-device base flow-items--baseline"
-            ],
-        )
+    #     html_soup2 = BeautifulSoup(response.page_source, "lxml")
 
-        for j in container_test:
-            container_a = j.find_all(["a"])
-            if container_a != []:
-                print(container_a[0].text)
+    #     list_selnium.append(html_soup2)
+    #     if count == 2:
+    #         break
+    #     count += 1
+    # wr.write_list(list_selnium, "selenium_responses_python")
 
     # Creating the CSV file
     print()
